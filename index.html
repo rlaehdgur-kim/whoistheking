@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>오대장</title>
+  <style>
+    *{
+        border: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 50px;
+        touch-action: none;
+        overflow: hidden;
+    }
+
+    #container {
+      width: 90vw;
+      height: 50vw;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #scroller {
+      display: flex;
+      position: absolute;
+      left: 100%;
+      animation: scrollLeft 7s ease-out forwards;
+    }
+
+    .item {
+      flex: 0 0 90vw;
+      height: 50vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f4f4f4;
+      font-size: 1.5rem;
+    }
+    #selector h3{
+        margin-left: 8px;
+    }
+    #selector p{
+        font-size: 0.7rem;
+        color: #999;
+        margin-left: 8px;
+    }
+    #startButton{
+        background: rgb(62, 62, 62); color: white;
+        width: 110px; height: 40px;
+        border-radius: 15px;
+        margin-top: 17px;
+        margin-left: 9px;
+    }
+    #container, #result {
+     display: none; /* 처음엔 숨김 */
+    }
+
+    #selector {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+
+    #excludeForm label {
+        display: inline-block;
+        margin: 5px 10px;
+        font-size: 1.2rem;
+    }
+
+    #excludeForm input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
+
+    @keyframes scrollLeft {
+      to {
+        left: calc(-90vw * (var(--item-count) - 1));
+      }
+    }
+
+    #result {
+      margin-top: 40px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: rgb(240, 17, 229);
+    }
+  </style>
+</head>
+<body>
+    <div id="selector">
+        <h3>없는 사람 나가리</h3>
+        <p>있으면 체크하지마세요 바보년아</p>
+        <form id="excludeForm"></form>
+        <button id="startButton">let's go bitch</button>
+    </div>
+  <div id="container">
+    <div id="scroller"></div>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    const allNames = [
+      { name: "찬슬", img: "images/찬슬.png" },
+      { name: "중혁", img: "images/중혁.png" },
+      { name: "정훈", img: "images/정훈.png" },
+      { name: "동혁", img: "images/동혁.png" },
+      { name: "떡꾹", img: "images/떡꾹.png" },
+      { name: "바울", img: "images/바울.png" },
+      { name: "삥콩", img: "images/삥콩.png" },
+      { name: "성민", img: "images/성민.png" },
+      { name: "주콩", img: "images/주콩.png" },
+      { name: "준우", img: "images/준우.png" },
+      { name: "지용", img: "images/지용.png" },
+      { name: "현우", img: "images/현우.png" },
+    ];
+
+    const form = document.getElementById("excludeForm");
+    const startButton = document.getElementById("startButton");
+    const scroller = document.getElementById("scroller");
+    const result = document.getElementById("result");
+
+    // 체크박스 section
+    allNames.forEach(person => {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "exclude";
+      checkbox.value = person.name;
+
+      label.appendChild(checkbox);
+      label.append(" " + person.name);
+      form.appendChild(label);
+      form.appendChild(document.createElement("br"));
+    });
+
+    startButton.addEventListener("click", () => {
+      // 선택된 이름 제외
+      const excluded = Array.from(document.querySelectorAll('input[name="exclude"]:checked')).map(cb => cb.value);
+      const available = allNames.filter(person => !excluded.includes(person.name));
+      
+      // UI 보이기
+      document.getElementById("selector").style.display = "none";
+      document.getElementById("container").style.display = "block";
+      document.getElementById("result").style.display = "block";
+
+      if (available.length === 0) {
+        alert(".sexy.");
+        return;
+      }
+
+      const winner = available[Math.floor(Math.random() * available.length)];
+
+      // 선택 리스트 
+      let extended = [];
+      for (let i = 0; i < 5; i++) {
+        extended = extended.concat(available.sort(() => Math.random() - 0.5));
+      }
+      extended.push(winner);
+
+      scroller.innerHTML = ""; 
+      scroller.style.setProperty('--item-count', extended.length);
+
+      extended.forEach(person => {
+        const div = document.createElement("div");
+        div.className = "item";
+
+        const img = document.createElement("img");
+        img.src = person.img;        
+        img.alt = person.name;       
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.objectFit = "cover";  // 이미지 안잘리게
+
+        div.appendChild(img);
+        scroller.appendChild(div);
+      });
+
+      result.textContent = ""; // 초기화
+      setTimeout(() => {
+        result.textContent = `오늘의 선택받은자 "${winner.name}"`;
+      }, 7000);
+    });
+  </script>
+
+</body>
+</html>
